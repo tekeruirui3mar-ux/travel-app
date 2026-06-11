@@ -412,28 +412,28 @@
       { id: 8, dept: "WJ", name: "後藤" },
       { id: 9, dept: "GL", name: "萩野" },
       { id: 10, dept: "WJ", name: "寺澤" },
-      { id: 11, dept: "BB", name: "藤井" },
-      { id: 12, dept: "BB", name: "竹本" },
-      { id: 13, dept: "BB", name: "白井" },
-      { id: 14, dept: "MD", name: "川島" },
-      { id: 15, dept: "BL", name: "冨田" },
-      { id: 16, dept: "BL", name: "阿比留" },
-      { id: 17, dept: "AP", name: "内田" },{
-        id: 18, dept: "BL", name: "加藤" },
-      { id: 19, dept: "EC", name: "𠮷村" },
-      { id: 20, dept: "AP", name: "佐光" },
-      { id: 21, dept: "AP", name: "石原" },
-      { id: 22, dept: "MD", name: "成嶋" },
-      { id: 23, dept: "BL", name: "松岡" },
-      { id: 24, dept: "MD", name: "縣" },
-      {id: 25, dept: "MD", name: "三浦" },
-      { id: 26, dept: "SR", name: "松岡" },
-      {id: 27, dept: "WJ", name: "伊藤" },
-      {id: 28, dept: "MD", name: "児野" },
-      {id: 29, dept: "SR", name: "北澤" },
-      { id: 30, dept: "SR", name: "緒方" }
-    ];
-    // アプリケーション状態管理
+{ id: 11, dept: "BB", name: "藤井" },
+{ id: 12, dept: "BB", name: "竹本" },
+{ id: 13, dept: "BB", name: "白井" },
+{ id: 14, dept: "MD", name: "川島" },
+{ id: 15, dept: "BL", name: "冨田" },
+{ id: 16, dept: "BL", name: "阿比留" },
+{ id: 17, dept: "AP", name: "内田" },
+{ id: 18, dept: "BL", name: "加藤" },
+{ id: 19, dept: "EC", name: "𠮷村" },
+{ id: 20, dept: "AP", name: "佐光" },
+{ id: 21, dept: "AP", name: "石原" },
+{ id: 22, dept: "MD", name: "成嶋" },
+{ id: 23, dept: "BL", name: "松岡" },
+{ id: 24, dept: "MD", name: "縣" },
+{ id: 25, dept: "MD", name: "三浦" },
+{ id: 26, dept: "SR", name: "松岡" },
+{ id: 27, dept: "WJ", name: "伊藤" },
+{ id: 28, dept: "MD", name: "児野" },
+{ id: 29, dept: "SR", name: "北澤" },
+{ id: 30, dept: "SR", name: "緒方" }
+];
+// アプリケーション状態管理
 let state = {
 members: [],
 globalMemo: "",
@@ -545,7 +545,6 @@ const isDone = member.park && member.shinkansen;
 const card = document.createElement('div');
 card.className = "card" + (isDone ? " completed" : "");
 card.dataset.id = member.id;
-// 改行崩れを防ぐため文字列結合で安全に記述
 let htmlStr = "";
 htmlStr += '';
 htmlStr += ' ';
@@ -618,6 +617,7 @@ btn.addEventListener('click', function(e) {
 filterBtns.forEach(function(b) {
 b.classList.remove('active');
 });
+e.target.classList.add('add' ? 'active' : 'active');
 e.target.classList.add('active');
 state.currentFilter = e.target.dataset.filter;
 renderList();
@@ -650,3 +650,4 @@ console.log('Service Worker 登録失敗:', err);
 initData();
 updateDashboard();
 renderList();
+
