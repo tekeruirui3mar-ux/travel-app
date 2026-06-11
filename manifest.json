@@ -1,0 +1,21 @@
+{
+  "short_name": "幹事アプリ",
+  "name": "社員旅行幹事アプリ",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' viewBox='0 0 512 512' width='192' height='192'><rect width='512' height='512' rx='120' fill='%23E8F5E9'/><circle cx='256' cy='256' r='120' fill='%23FFF9C4'/><path d='M160 180c22 0 40-18 40-40s-18-40-40-40-40 18-40 40 18 40 40 40zm192 0c22 0 40-18 40-40s-18-40-40-40-40 18-40 40 18 40 40 40z' fill='%23B3E5FC'/></svg>",
+      "type": "image/svg+xml",
+      "sizes": "192x192"
+    },
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' viewBox='0 0 512 512' width='512' height='512'><rect width='512' height='512' rx='120' fill='%23E8F5E9'/><circle cx='256' cy='256' r='120' fill='%23FFF9C4'/><path d='M160 180c22 0 40-18 40-40s-18-40-40-40-40 18-40 40 18 40 40 40zm192 0c22 0 40-18 40-40s-18-40-40-40-40 18-40 40 18 40 40 40z' fill='%23B3E5FC'/></svg>",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#F0F4F8",
+  "theme_color": "#B3E5FC",
+  "display": "standalone",
+  "orientation": "portrait"
+}
