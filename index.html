@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="幹事アプリ">
+  <title>社員旅行幹事アプリ</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://w3.org' viewBox='0 0 512 512' width='512' height='512'><rect width='512' height='512' rx='120' fill='%23E8F5E9'/><circle cx='256' cy='256' r='120' fill='%23FFF9C4'/><path d='M160 180c22 0 40-18 40-40s-18-40-40-40-40 18-40 40 18 40 40 40zm192 0c22 0 40-18 40-40s-18-40-40-40-40 18-40 40 18 40 40 40z' fill='%23B3E5FC'/></svg>">
+  <style>
+    :root {
+      --bg-color: #F2F6FA;
+      --pastel-blue: #E1F5FE;
+      --pastel-blue-dark: #0288D1;
+      --pastel-yellow: #FFFDE7;
+      --pastel-yellow-dark: #FBC02D;
+      --pastel-green: #E8F5E9;
+      --pastel-green-dark: #388E3C;
+      --text-color: #37474F;
+      --card-bg: #FFFFFF;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: calc(20px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom)) 16px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #546E7A;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 進捗エリア */
+    .dashboard {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(149, 157, 165, 0.15);
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .progress-bar-container {
+      background-color: #ECEFF1;
+      border-radius: 10px;
+      height: 16px;
+      width: 100%;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .progress-bar {
+      background: linear-gradient(90deg, #A5D6A7, #81C784);
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s ease;
+      border-radius: 10px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat-box {
+      border-radius: 16px;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .stat-park {
+      background-color: var(--pastel-blue);
+      color: #0277BD;
+    }
+
+    .stat-shinkansen {
+      background-color: var(--pastel-yellow);
+      color: #F57F17;
+    }
+
+    /* 全体メモ */
+    .global-memo-container {
+      margin-bottom: 20px;
+    }
+
+    .global-memo-container label {
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #78909C;
+      padding-left: 4px;
+    }
+
+    .global-memo {
+      width: 100%;
+      height: 70px;
+      border-radius: 16px;
+      border: 1px solid #CFD8DC;
+      padding: 12px;
+      font-size: 15px;
+      resize: none;
+      font-family: inherit;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .global-memo:focus {
+      border-color: #B3E5FC;
+    }
+
+    /* コントロールエリア */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 50px;
+      border-radius: 25px;
+      border: 1px solid #CFD8DC;
+      padding: 0 20px;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .search-input:focus {
+      border-color: #B3E5FC;
+    }
+
+    .filter-tabs {
+      display: flex;
+      background-color: #E0E0E0;
+      padding: 4px;
+      border-radius: 25px;
+    }
+
+    .filter-btn {
+      flex: 1;
+      border: none;
+      background: none;
+      height: 40px;
+      border-radius: 21px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #616161;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      background-color: #FFFFFF;
+      color: var(--text-color);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .reset-btn {
+      background-color: #FFEBEE;
+      color: #C62828;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .reset-btn:active {
+      background-color: #FFCDD2;
+    }
+
+    /* カードリスト */
+    .card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 6px 18px rgba(149, 157, 165, 0.1);
+      border: 1px solid rgba(0,0,0,0.03);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card.completed {
+      background-color: var(--pastel-green);
+      border-color: #C8E6C9;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dept-tag {
+      font-size: 12px;
+      font-weight: bold;
+      color: #78909C;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .user-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    .status-badge {
+      background-color: #A5D6A7;
+      color: #1B5E20;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .card.completed .status-badge {
+      display: block;
+    }
+
+    /* チケットトグルボタン */
+    .ticket-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .ticket-btn {
+      height: 56px;
+      border: 2px solid transparent;
+      border-radius: 18px;
+      font-size: 15px;
+      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background-color: #F5F5F5;
+      color: #757575;
+    }
+
+    .ticket-btn span {
+      font-size: 11px;
+      margin-top: 2px;
+      font-weight: normal;
+    }
+
+    .btn-park.active {
+      background-color: var(--pastel-blue);
+      border-color: #90CAF9;
+      color: var(--pastel-blue-dark);
+    }
+
+    .btn-shinkansen.active {
+      background-color: var(--pastel-yellow);
+      border-color: #FFF59D;
+      color: #E65100;
+    }
+
+    /* 個別メモ */
+    .card-memo {
+      width: 100%;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid #E0E0E0;
+      padding: 10px 12px;
+      font-size: 14px;
+      resize: none;
+      font-family: inherit;
+      outline: none;
+      box-sizing: border-box;
+      transition: all 0.2s;
+      background-color: #FAFAFA;
+    }
+
+    .card-memo:focus {
+      background-color: #FFFFFF;
+      border-color: #B3E5FC;
+      height: 70px;
+    }
+
+    .card.completed .card-memo {
+      background-color: rgba(255,255,255,0.6);
+      border-color: #C8E6C9;
+    }
+    
+    .card.completed .card-memo:focus {
+      background-color: #FFFFFF;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>✨ 旅行幹事さんパレット ✨</h1>
+  </header>
+
+  <!-- 進捗ダッシュボード -->
+  <section class="dashboard">
+    <div class="progress-header">
+      <span>配布ステータス</span>
+      <span id="progress-text">0 / 0 人</span>
+    </div>
+    <div class="progress-bar-container">
+      <div id="progress-bar" class="progress-bar"></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-box stat-park">🎫 パーク未配布: <span id="count-park">0</span>人</div>
+      <div class="stat-box stat-shinkansen">🚄 新幹線未配布: <span id="count-shinkansen">0</span>人</div>
+    </div>
+  </section>
+
+  <!-- 全体メモ -->
+  <section class="global-memo-container">
+    <label for="global-memo-input">✏️ 全体連絡・スケジュールメモ</label>
+    <textarea id="global-memo-input" class="global-memo" placeholder="集合時間や全体の注意事項など..."></textarea>
+  </section>
+
+  <!-- 操作・検索ツール -->
+  <section class="controls">
+    <input type="search" id="search-input" class="search-input" placeholder="名前または部署で検索...">
+    
+    <div class="filter-tabs">
+      <button class="filter-btn active" data-filter="all">全員</button>
+      <button class="filter-btn" data-filter="uncompleted">未配布</button>
+      <button class="filter-btn" data-filter="completed">配布済み</button>
+    </div>
+
+    <div class="action-row">
+      <button id="reset-btn" class="reset-btn">全解除</button>
+    </div>
+  </section>
+
+  <!-- メンバーカード一覧 -->
+  <main id="card-list" class="card-list"></main>
+
+  <script>
+    // 初期表示メンバーデータ
+    const INITIAL_MEMBERS = [
+      { id: 1, dept: "BL", name: "末次" },
+      { id: 2, dept: "MD", name: "番" },
+      { id: 3, dept: "SR", name: "篠田" },
+      { id: 4, dept: "WJ", name: "安藤" },
+      { id: 5, dept: "WJ", name: "白井" },
+      { id: 6, dept: "WJ", name: "石丸" },
+      { id: 7, dept: "WJ", name: "堀内" },
+      { id: 8, dept: "WJ", name: "後藤" },
+      { id: 9, dept: "GL", name: "萩野" },
+      { id: 10, dept: "WJ", name: "寺澤" },
+      { id: 11, dept: "BB", name: "藤井" },
+      { id: 12, dept: "BB", name: "竹本" },
+      { id: 13, dept: "BB", name: "白井" },
+      { id: 14, dept: "MD", name: "川島" },
+      { id: 15, dept: "BL", name: "冨田" },
+      { id: 16, dept: "BL", name: "阿比留" },
+      { id: 17, dept: "AP", name: "内田" },{
+        id: 18, dept: "BL", name: "加藤" },
+      { id: 19, dept: "EC", name: "𠮷村" },
+      { id: 20, dept: "AP", name: "佐光" },
+      { id: 21, dept: "AP", name: "石原" },
+      { id: 22, dept: "MD", name: "成嶋" },
+      { id: 23, dept: "BL", name: "松岡" },
+      { id: 24, dept: "MD", name: "縣" },
+      {id: 25, dept: "MD", name: "三浦" },
+      { id: 26, dept: "SR", name: "松岡" },
+      {id: 27, dept: "WJ", name: "伊藤" },
+      {id: 28, dept: "MD", name: "児野" },
+      {id: 29, dept: "SR", name: "北澤" },
+      { id: 30, dept: "SR", name: "緒方" }
+    ];
+    // アプリケーション状態管理
+let state = {
+members: [],
+globalMemo: "",
+searchQuery: "",
+currentFilter: "all"
+};
+// DOM要素
+const cardListEl = document.getElementById('card-list');
+const searchInputEl = document.getElementById('search-input');
+const globalMemoEl = document.getElementById('global-memo-input');
+const progressTextEl = document.getElementById('progress-text');
+const progressBarEl = document.getElementById('progress-bar');
+const countParkEl = document.getElementById('count-park');
+const countShinkansenEl = document.getElementById('count-shinkansen');
+const resetBtnEl = document.getElementById('reset-btn');
+const filterBtns = document.querySelectorAll('.filter-btn');
+// ローカルストレージからデータを読み込む、または初期化
+function initData() {
+const savedMembers = localStorage.getItem('kanji_app_members');
+const savedMemo = localStorage.getItem('kanji_app_global_memo');
+if (savedMembers) {
+state.members = JSON.parse(savedMembers);
+if (state.members.length !== INITIAL_MEMBERS.length) {
+syncInitialMembers();
+}
+} else {
+state.members = INITIAL_MEMBERS.map(function(m) {
+return {
+id: m.id,
+dept: m.dept,
+name: m.name,
+park: false,
+shinkansen: false,
+memo: ""
+};
+});
+saveToLocalStorage();
+}
+state.globalMemo = savedMemo || "";
+globalMemoEl.value = state.globalMemo;
+}
+function syncInitialMembers() {
+const currentMap = new Map(state.members.map(function(m) {
+return [m.dept + '-' + m.name, m];
+}));
+state.members = INITIAL_MEMBERS.map(function(m) {
+const key = m.dept + '-' + m.name;
+if (currentMap.has(key)) {
+return currentMap.get(key);
+} else {
+return {
+id: m.id,
+dept: m.dept,
+name: m.name,
+park: false,
+shinkansen: false,
+memo: ""
+};
+}
+});
+saveToLocalStorage();
+}
+function saveToLocalStorage() {
+localStorage.setItem('kanji_app_members', JSON.stringify(state.members));
+}
+// 進捗メーターとダッシュボードの更新
+function updateDashboard() {
+const total = state.members.length;
+const completedCount = state.members.filter(function(m) {
+return m.park && m.shinkansen;
+}).length;
+const unparkCount = state.members.filter(function(m) {
+return !m.park;
+}).length;
+const unshinkansenCount = state.members.filter(function(m) {
+return !m.shinkansen;
+}).length;
+progressTextEl.textContent = completedCount + " / " + total + " 人";
+const percentage = total > 0 ? (completedCount / total) * 100 : 0;
+progressBarEl.style.width = percentage + "%";
+countParkEl.textContent = unparkCount;
+countShinkansenEl.textContent = unshinkansenCount;
+}
+// データの並び替え・絞り込みをしてリストを描画
+function renderList() {
+cardListEl.innerHTML = '';
+// 1. 検索とフィルターの適用
+let filtered = state.members.filter(function(member) {
+const matchesSearch = member.name.includes(state.searchQuery) ||
+member.dept.toLowerCase().includes(state.searchQuery.toLowerCase());
+const isDone = member.park && member.shinkansen;
+let matchesFilter = true;
+if (state.currentFilter === 'uncompleted') {
+matchesFilter = !isDone;
+} else if (state.currentFilter === 'completed') {
+matchesFilter = isDone;
+}
+return matchesSearch && matchesFilter;
+});
+// 2. 「配布完了者は一番下へ移動」ルールを適用して並び替え
+filtered.sort(function(a, b) {
+const aDone = a.park && a.shinkansen ? 1 : 0;
+const bDone = b.park && b.shinkansen ? 1 : 0;
+return aDone - bDone;
+});
+// 3. カード要素の生成と配置
+filtered.forEach(function(member) {
+const isDone = member.park && member.shinkansen;
+const card = document.createElement('div');
+card.className = "card" + (isDone ? " completed" : "");
+card.dataset.id = member.id;
+// 改行崩れを防ぐため文字列結合で安全に記述
+let htmlStr = "";
+htmlStr += '';
+htmlStr += ' ';
+htmlStr += ' ' + escapeHTML(member.dept) + '';
+htmlStr += ' ' + escapeHTML(member.name) + '';
+htmlStr += ' ';
+htmlStr += ' 配布完了';
+htmlStr += '';
+htmlStr += '';
+htmlStr += ' ';
+htmlStr += ' 🎫 パーク';
+htmlStr += ' ' + (member.park ? '配布済' : '未配布') + '';
+htmlStr += ' ';
+htmlStr += ' ';
+htmlStr += ' 🚄 新幹線';
+htmlStr += ' ' + (member.shinkansen ? '配布済' : '未配布') + '';
+htmlStr += ' ';
+htmlStr += '';
+htmlStr += '' + escapeHTML(member.memo) + '';
+card.innerHTML = htmlStr;
+cardListEl.appendChild(card);
+});
+}
+// チケットのON/OFF切り替え
+window.toggleTicket = function(id, type) {
+const member = state.members.find(function(m) {
+return m.id === id;
+});
+if (member) {
+member[type] = !member[type];
+saveToLocalStorage();
+updateDashboard();
+renderList();
+}
+};
+// 個別メモの更新
+window.updateCardMemo = function(id, value) {
+const member = state.members.find(function(m) {
+return m.id === id;
+});
+if (member) {
+member.memo = value;
+saveToLocalStorage();
+}
+};
+// HTMLエスケープ処理
+function escapeHTML(str) {
+if (!str) return '';
+return str.replace(/[&<>"']/g, function(m) {
+return {
+'&': '&',
+'<': '<',
+'>': '>',
+'"': '"',
+"'": '''
+}[m];
+});
+}
+// イベントリスナーのセットアップ
+searchInputEl.addEventListener('input', function(e) {
+state.searchQuery = e.target.value.trim();
+renderList();
+});
+globalMemoEl.addEventListener('input', function(e) {
+state.globalMemo = e.target.value;
+localStorage.setItem('kanji_app_global_memo', state.globalMemo);
+});
+filterBtns.forEach(function(btn) {
+btn.addEventListener('click', function(e) {
+filterBtns.forEach(function(b) {
+b.classList.remove('active');
+});
+e.target.classList.add('active');
+state.currentFilter = e.target.dataset.filter;
+renderList();
+});
+});
+resetBtnEl.addEventListener('click', function() {
+if (confirm('全員の配布状況（チェック状態）をすべて未配布に戻しますか？（備考欄・メモは保持されます）')) {
+state.members.forEach(function(m) {
+m.park = false;
+m.shinkansen = false;
+});
+saveToLocalStorage();
+updateDashboard();
+renderList();
+}
+});
+// サービスワーカーの登録（PWA対応）
+if ('serviceWorker' in navigator) {
+window.addEventListener('load', function() {
+navigator.serviceWorker.register('./service-worker.js')
+.then(function(reg) {
+console.log('Service Worker 登録成功:', reg.scope);
+})
+.catch(function(err) {
+console.log('Service Worker 登録失敗:', err);
+});
+});
+}
+// アプリ初期化実行
+initData();
+updateDashboard();
+renderList();
